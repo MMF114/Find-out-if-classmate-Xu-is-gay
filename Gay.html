@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>你同桌叫什么？</title>
+<style>
+  /* 基础重置，防止手机端出现奇怪的滚动 */
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* 锁定滑动，防止颤抖时出现滚动条 */
+    background-color: #111;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+  }
+
+  /* 面板通用样式 */
+  .screen {
+    display: none;
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+  }
+  .screen.active {
+    display: flex;
+  }
+
+  /* ---------- 阶段1：询问面板 ---------- */
+  #ask-screen {
+    background: #1a1a1a;
+  }
+  #ask-screen h1 {
+    font-size: clamp(20px, 6vw, 32px);
+    margin-bottom: 20px;
+    color: #eee;
+  }
+  #name-input {
+    width: min(80vw, 300px);
+    padding: 12px 20px;
+    font-size: 18px;
+    border: 2px solid #444;
+    border-radius: 10px;
+    background: #222;
+    color: #fff;
+    outline: none;
+    text-align: center;
+    margin-bottom: 20px;
+    transition: border-color 0.3s;
+  }
+  #name-input:focus {
+    border-color: #4ade80;
+  }
+  #submit-btn {
+    padding: 12px 40px;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    background: #4ade80;
+    color: #111;
+    cursor: pointer;
+    transition: transform 0.1s, background 0.3s;
+  }
+  #submit-btn:active {
+    transform: scale(0.95);
+  }
+
+  /* ---------- 阶段2：整蛊成功（Gay） ---------- */
+  #prank-screen {
+    background: #1a1a1a;
+  }
+  .prank-text-big {
+    font-size: clamp(40px, 15vw, 100px);
+    font-weight: 900;
+    background: linear-gradient(45deg, #ff4d4d, #f9cb28, #4ade80, #3b82f6, #a855f7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    opacity: 0;
+    animation: fadeInText 2s forwards;
+    margin-bottom: 15px;
+  }
+  .prank-text-small {
+    font-size: clamp(16px, 5vw, 24px);
+    color: #aaa;
+    opacity: 0;
+    animation: fadeInText 2s 1.5s forwards; /* 延迟1.5秒出现 */
+  }
+  @keyframes fadeInText {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ---------- 阶段3：恐怖红屏（我是你爹） ---------- */
+  #scare-screen {
+    background-color: #000;
+    /* 红屏闪烁动画 */
+    animation: redFlash 0.15s infinite alternate;
+    z-index: 10;
+  }
+  /* 图片自适应与剧烈颤抖 */
+  #scary-img {
+    max-width: 90vw;
+    max-height: 60vh;
+    object-fit: contain;
+    border-radius: 8px;
+    /* 剧烈颤抖动画 */
+    animation: shake 0.08s infinite;
+    margin-bottom: 20px;
+    box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+  }
+  /* 恐怖大字 */
+  .scary-text {
+    font-size: clamp(50px, 18vw, 120px);
+    font-weight: 900;
+    color: #ff0000;
+    text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 40px #ff0000;
+    opacity: 0;
+    /* 延迟2秒出现，并带上剧烈颤抖 */
+    animation: violentShake 0.05s infinite, fadeInText 0.5s 2s forwards;
+  }
+
+  /* 红黑闪烁背景 */
+  @keyframes redFlash {
+    0% { background-color: #1a0000; }
+    100% { background-color: #8b0000; }
+  }
+  /* 图片颤抖 */
+  @keyframes shake {
+    0% { transform: translate(2px, 1px) rotate(0deg); }
+    10% { transform: translate(-1px, -2px) rotate(-1deg); }
+    20% { transform: translate(-3px, 0px) rotate(1deg); }
+    30% { transform: translate(0px, 2px) rotate(0deg); }
+    40% { transform: translate(1px, -1px) rotate(1deg); }
+    50% { transform: translate(-1px, 2px) rotate(-1deg); }
+    60% { transform: translate(-3px, 1px) rotate(0deg); }
+    70% { transform: translate(2px, 1px) rotate(-1deg); }
+    80% { transform: translate(-1px, -1px) rotate(1deg); }
+    90% { transform: translate(2px, 2px) rotate(0deg); }
+    100% { transform: translate(1px, -2px) rotate(-1deg); }
+  }
+  /* 文字极度剧烈颤抖 */
+  @keyframes violentShake {
+    0% { transform: translate(3px, 3px) scale(1.02); }
+    50% { transform: translate(-3px, -3px) scale(0.98); }
+    100% { transform: translate(3px, -3px) scale(1.02); }
+  }
+</style>
+</head>
+<body>
+
+  <!-- 阶段1：询问 -->
+  <div id="ask-screen" class="screen active">
+    <h1>你同桌叫什么？</h1>
+    <input type="text" id="name-input" placeholder="输入名字..." autocomplete="off">
+    <button id="submit-btn">确定</button>
+  </div>
+
+  <!-- 阶段2：整蛊成功 -->
+  <div id="prank-screen" class="screen">
+    <div class="prank-text-big">你是 Gay</div>
+    <div class="prank-text-small">因为你暗恋你同桌</div>
+  </div>
+
+  <!-- 阶段3：恐怖红屏 -->
+  <div id="scare-screen" class="screen">
+    <!-- 请确保同目录下有 face.jpg 图片 -->
+    <img src="face.jpg" alt="img" id="scary-img">
+    <div class="scary-text">我是你爹</div>
+  </div>
+
+  <!-- 音频文件，请确保同目录下有 scare.mp3 -->
+  <audio id="scary-audio" src="scare.mp3" preload="auto"></audio>
+
+  <!-- 引入礼花特效库 -->
+  <script src="https://.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    // 获取页面元素
+    const askScreen = document.getElementById('ask-screen');
+    const prankScreen = document.getElementById('prank-screen');
+    const scareScreen = document.getElementById('scare-screen');
+    const nameInput = document.getElementById('name-input');
+    const submitBtn = document.getElementById('submit-btn');
+    const scaryAudio = document.getElementById('scary-audio');
+
+    // 隐藏其他面板，显示指定面板
+    function showScreen(screen) {
+      askScreen.classList.remove('active');
+      prankScreen.classList.remove('active');
+      scareScreen.classList.remove('active');
+      screen.classList.add('active');
+    }
+
+    // 礼花特效函数
+    function fireConfetti() {
+      // 第一波爆发
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+      // 2秒后第二波
+      setTimeout(() => {
+        confetti({
+          particleCount: 100,
+          spread: 100,
+          origin: { y: 0.5 }
+        });
+      }, 2000);
+    }
+
+    // 点击确定按钮的逻辑
+    submitBtn.addEventListener('click', () => {
+      const value = nameInput.value.trim();
+
+      if (value === '孟茗枫') {
+        // 正确名字，进入整蛊成功结局
+        showScreen(prankScreen);
+        fireConfetti();
+      } else {
+        // 错误名字或为空，进入恐怖结局
+        showScreen(scareScreen);
+        
+        // 播放音频
+        // 注意：现代浏览器要求先有用户交互（比如点击按钮）才能播放音频，这里刚好符合
+        scaryAudio.play().catch(error => {
+          console.log("音频播放失败，可能是浏览器策略或文件路径错误:", error);
+        });
+      }
+    });
+
+    // 支持按回车键提交
+    nameInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        submitBtn.click();
+      }
+    });
+  </script>
+</body>
+</html>
